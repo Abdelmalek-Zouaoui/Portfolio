@@ -1,0 +1,122 @@
+{% extends "admin/base.html" %}
+{% set active = 'skills' %}
+{% block title %}Skills{% endblock %}
+
+{% block content %}
+<div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.35rem;">
+  <h1 class="page-title" style="margin-bottom: 0;">Skills</h1>
+</div>
+<p class="page-sub">Add, edit, and delete skill entries. Group them by category.</p>
+
+{% if saved == '1' %}
+<div class="flash flash-success">✔ Changes saved.</div>
+{% endif %}
+
+<!-- Add new skill -->
+<div class="card" style="margin-bottom: 2rem;">
+  <div class="card-header"><span class="card-title">Add new skill</span></div>
+  <div class="card-body">
+    <form method="POST" action="/admin/skills/add">
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="skill-category">Category</label>
+          <input type="text" id="skill-category" name="category" placeholder="e.g. Agents &amp; AI" required />
+        </div>
+        <div class="form-group">
+          <label for="skill-label">Skill label</label>
+          <input type="text" id="skill-label" name="label" placeholder="e.g. Python" required />
+        </div>
+        <div class="form-group">
+          <label for="skill-order">Sort order</label>
+          <input type="number" id="skill-order" name="sort_order" value="0" min="0" />
+        </div>
+        <div class="form-group" style="align-self: flex-end;">
+          <button type="submit" class="btn btn-primary" id="skill-add-btn">Add skill</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Skills grouped by category -->
+{% if grouped %}
+  {% for category, items in grouped.items() %}
+  <div class="card" style="margin-bottom: 1.25rem;">
+    <div class="card-header">
+      <span class="card-title">{{ category }}</span>
+      <span style="font-family: var(--font-mono); font-size: 0.7rem; color: var(--ink-soft);">{{ items | length }} skills</span>
+    </div>
+    <table class="admin-table">
+      <thead>
+        <tr>
+          <th>Label</th>
+          <th>Category</th>
+          <th style="width: 90px;">Order</th>
+          <th style="width: 180px;">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for skill in items %}
+        <tr>
+          <td>{{ skill.label }}</td>
+          <td><span class="badge badge-accent">{{ skill.category }}</span></td>
+          <td style="font-family: var(--font-mono); font-size: 0.78rem;">{{ skill.sort_order }}</td>
+          <td>
+            <!-- Edit inline form -->
+            <details style="display: inline;">
+              <summary class="btn btn-outline btn-sm" id="skill-edit-{{ skill.id }}" style="cursor: pointer; list-style: none; display: inline-flex;">Edit</summary>
+            </details>
+            &nbsp;
+            <form method="POST" action="/admin/skills/{{ skill.id }}/delete" style="display: inline;"
+                  onsubmit="return confirm('Delete this skill?')">
+              <button type="submit" class="btn btn-danger btn-sm" id="skill-delete-{{ skill.id }}">Delete</button>
+            </form>
+          </td>
+        </tr>
+        <!-- Edit row (shown via details) -->
+        <tr id="skill-edit-row-{{ skill.id }}" style="background: var(--accent-soft);">
+          <td colspan="4" style="padding: 0.75rem 1rem;">
+            <form method="POST" action="/admin/skills/{{ skill.id }}/edit" style="display: flex; gap: 0.75rem; align-items: flex-end; flex-wrap: wrap;">
+              <div class="form-group" style="flex: 1; min-width: 160px;">
+                <label>Category</label>
+                <input type="text" name="category" value="{{ skill.category }}" required />
+              </div>
+              <div class="form-group" style="flex: 1; min-width: 160px;">
+                <label>Label</label>
+                <input type="text" name="label" value="{{ skill.label }}" required />
+              </div>
+              <div class="form-group" style="width: 80px;">
+                <label>Order</label>
+                <input type="number" name="sort_order" value="{{ skill.sort_order }}" min="0" />
+              </div>
+              <button type="submit" class="btn btn-primary btn-sm">Save</button>
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% endfor %}
+{% else %}
+  <div style="text-align: center; padding: 3rem; border: 1px dashed var(--line); border-radius: 6px; color: var(--ink-soft);">
+    No skills yet — add your first one above.
+  </div>
+{% endif %}
+
+<script>
+/* Toggle inline edit rows */
+document.querySelectorAll('details summary').forEach(summary => {
+  summary.addEventListener('click', e => {
+    e.preventDefault();
+    const tr = summary.closest('tr');
+    const nextRows = tr.nextElementSibling;
+    if (nextRows) {
+      nextRows.style.display = nextRows.style.display === 'none' ? '' : 'none';
+    }
+  });
+});
+/* Hide edit rows by default */
+document.querySelectorAll('[id^="skill-edit-row-"]').forEach(r => r.style.display = 'none');
+</script>
+{% endblock %}

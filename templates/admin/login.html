@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Login — Portfolio CMS</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="/static/admin.css" />
+</head>
+<body>
+<div class="login-page">
+  <div class="login-box">
+    <h1 class="login-logo">Portfolio<span>CMS</span></h1>
+    <p class="login-sub">Enter your admin password to continue.</p>
+
+    {% if error %}
+    <div class="login-error" role="alert">{{ error }}</div>
+    {% endif %}
+
+    <form method="POST" action="/admin/login">
+      <div class="form-group">
+        <label for="admin-password">Password</label>
+        <input
+          type="password"
+          id="admin-password"
+          name="password"
+          autocomplete="current-password"
+          autofocus
+          required
+        />
+      </div>
+      <button type="submit" class="btn btn-primary" id="login-submit-btn">Sign in</button>
+    </form>
+  </div>
+</div>
+</body>
+</html>

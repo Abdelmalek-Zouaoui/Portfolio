@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  {# Dynamic SEO tags filled by child templates #}
+  <title>{% block title %}{% if profile and profile.name %}{{ profile.name }} — AI Engineer{% else %}AI Engineer Portfolio{% endif %}{% endblock %}</title>
+  <meta name="description" content="{% block meta_description %}AI Engineering portfolio — projects, skills, and contact information.{% endblock %}" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="/static/style.css" />
+  {% block head_extra %}{% endblock %}
+</head>
+<body>
+  {% block body %}{% endblock %}
+</body>
+</html>

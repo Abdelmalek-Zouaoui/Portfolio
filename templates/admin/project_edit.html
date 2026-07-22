@@ -1,0 +1,199 @@
+{% extends "admin/base.html" %}
+{% set active = 'projects' %}
+{% block title %}{{ 'Edit Project' if project else 'New Project' }}{% endblock %}
+
+{% block content %}
+<div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.35rem;">
+  <a href="/admin/projects" class="btn btn-outline btn-sm">← Back</a>
+  <h1 class="page-title" style="margin-bottom: 0;">
+    {{ 'Edit: ' + project.title if project else 'New Project' }}
+  </h1>
+</div>
+<p class="page-sub">
+  {% if project %}Edit project details, meta rows, and manage images below.{% else %}Fill in the details for your new project.{% endif %}
+</p>
+
+{% if saved == '1' %}
+<div class="flash flash-success">✔ Project saved successfully.</div>
+{% elif saved == 'error' %}
+<div class="flash flash-error">⚠ Upload failed. Check that your image file is valid.</div>
+{% endif %}
+
+{% set form_action = '/admin/projects/' + project.id|string + '/edit' if project else '/admin/projects/new' %}
+
+<!-- ── Project details form ─────────────────────────────────────────────── -->
+<form method="POST" action="{{ form_action }}">
+  <div class="card" style="margin-bottom: 1.5rem;">
+    <div class="card-header"><span class="card-title">Project details</span></div>
+    <div class="card-body">
+      <div class="form-grid">
+
+        <div class="form-group span-2">
+          <label for="proj-title">Title <span style="color: var(--danger);">*</span></label>
+          <input type="text" id="proj-title" name="title" value="{{ project.title if project else '' }}" placeholder="My AI Agent" required />
+        </div>
+
+        <div class="form-group">
+          <label for="proj-index">Index label</label>
+          <input type="text" id="proj-index" name="index_label" value="{{ project.index_label if project else '' }}" placeholder="01 — Flagship project" />
+        </div>
+
+        <div class="form-group">
+          <label for="proj-status">Status</label>
+          <input type="text" id="proj-status" name="status" value="{{ project.status if project else '' }}" placeholder="Complete / In active development" />
+        </div>
+
+        <div class="form-group span-2">
+          <label for="proj-desc">Description</label>
+          <textarea id="proj-desc" name="description" rows="5" placeholder="What this project does, the problem it solves, your approach…">{{ project.description if project else '' }}</textarea>
+        </div>
+
+        <div class="form-group span-2">
+          <label for="proj-tags">Tags (comma-separated)</label>
+          <input type="text" id="proj-tags" name="tags" value="{{ project.tags if project else '' }}" placeholder="Python, LangChain, FastAPI, RAG" />
+        </div>
+
+        <div class="form-group">
+          <label for="proj-link-url">Project link URL</label>
+          <input type="url" id="proj-link-url" name="link_url" value="{{ project.link_url if project else '' }}" placeholder="https://github.com/..." />
+        </div>
+
+        <div class="form-group">
+          <label for="proj-link-label">Link label</label>
+          <input type="text" id="proj-link-label" name="link_label" value="{{ project.link_label if project else '' }}" placeholder="View on GitHub →" />
+        </div>
+
+        <div class="form-group">
+          <label for="proj-order">Sort order</label>
+          <input type="number" id="proj-order" name="sort_order" value="{{ project.sort_order if project else 0 }}" min="0" />
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Meta rows ───────────────────────────────────────────────────────── -->
+  <div class="card" style="margin-bottom: 1.5rem;">
+    <div class="card-header">
+      <span class="card-title">Meta rows</span>
+      <button type="button" class="btn btn-outline btn-sm" id="add-meta-btn" onclick="addMetaRow()">+ Add row</button>
+    </div>
+    <div class="card-body">
+      <p style="font-size: 0.8rem; color: var(--ink-soft); margin-bottom: 1rem;">Key-value pairs shown in the project card sidebar (e.g. "Type → RAG pipeline", "Stack → Python, Pinecone").</p>
+      <div class="meta-rows" id="meta-rows-container">
+        {% for row in meta %}
+        <div class="meta-row" id="meta-row-{{ loop.index }}">
+          <div class="form-group">
+            <label>Key</label>
+            <input type="text" name="meta_keys" value="{{ row.key }}" placeholder="Type" />
+          </div>
+          <div class="form-group">
+            <label>Value</label>
+            <input type="text" name="meta_values" value="{{ row.value }}" placeholder="RAG pipeline" />
+          </div>
+          <button type="button" class="btn btn-danger btn-xs" onclick="this.closest('.meta-row').remove()" title="Remove row">✕</button>
+        </div>
+        {% endfor %}
+      </div>
+      {% if not meta %}
+      <p id="meta-empty" style="color: var(--ink-soft); font-size: 0.85rem; font-style: italic;">No meta rows yet. Click "+ Add row" to add one.</p>
+      {% endif %}
+    </div>
+  </div>
+
+  <button type="submit" class="btn btn-primary" id="proj-save-btn">
+    {{ 'Save changes' if project else 'Create project' }}
+  </button>
+</form>
+
+<!-- ── Image manager (only for existing projects) ───────────────────────── -->
+{% if project %}
+<div class="card" style="margin-top: 2rem;">
+  <div class="card-header">
+    <span class="card-title">Images</span>
+    <span style="font-family: var(--font-mono); font-size: 0.68rem; color: var(--ink-soft);">{{ images | length }} uploaded</span>
+  </div>
+  <div class="card-body">
+
+    <!-- Existing images -->
+    {% if images %}
+    <div class="image-grid" style="margin-bottom: 1.5rem;">
+      {% for img in images %}
+      <div class="image-item {% if img.is_main %}is-main{% endif %}" id="image-item-{{ img.id }}">
+        {% if img.is_main %}
+        <span class="image-main-badge">★ Main image</span>
+        {% endif %}
+        <img src="{{ img.image_path }}" alt="{{ img.alt_text or 'Project image' }}" class="image-thumb" loading="lazy" />
+        <div class="image-actions">
+          {% if not img.is_main %}
+          <form method="POST" action="/admin/projects/{{ project.id }}/images/{{ img.id }}/set-main" style="display:inline;">
+            <button type="submit" class="btn btn-outline btn-xs" id="img-set-main-{{ img.id }}" title="Set as main image">★ Set main</button>
+          </form>
+          {% endif %}
+          <form method="POST" action="/admin/projects/{{ project.id }}/images/{{ img.id }}/delete" style="display:inline;"
+                onsubmit="return confirm('Delete this image? This also removes it from Cloudinary.')">
+            <button type="submit" class="btn btn-danger btn-xs" id="img-delete-{{ img.id }}">✕</button>
+          </form>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <p style="color: var(--ink-soft); font-size: 0.85rem; font-style: italic; margin-bottom: 1.25rem;">No images uploaded yet.</p>
+    {% endif %}
+
+    <!-- Upload new image -->
+    <div style="border-top: 1px solid var(--line); padding-top: 1.25rem;">
+      <p style="font-family: var(--font-mono); font-size: 0.68rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-soft); margin-bottom: 0.75rem;">Upload image</p>
+      <form method="POST" action="/admin/projects/{{ project.id }}/images/upload" enctype="multipart/form-data">
+        <div class="form-grid">
+          <div class="form-group span-2">
+            <label for="img-upload-{{ project.id }}">Image file (JPG, PNG, WebP, GIF)</label>
+            <input type="file" id="img-upload-{{ project.id }}" name="image" accept="image/*" required />
+          </div>
+          <div class="form-group">
+            <label for="img-alt-{{ project.id }}">Alt text</label>
+            <input type="text" id="img-alt-{{ project.id }}" name="alt_text" placeholder="Screenshot of the dashboard" />
+          </div>
+          <div class="form-group">
+            <label for="img-order-{{ project.id }}">Sort order</label>
+            <input type="number" id="img-order-{{ project.id }}" name="sort_order" value="{{ images | length }}" min="0" />
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary" id="img-upload-btn-{{ project.id }}" style="margin-top: 0.5rem;">
+          Upload to Cloudinary
+        </button>
+      </form>
+      <p style="font-size: 0.75rem; color: var(--ink-soft); margin-top: 0.4rem;">Image is uploaded directly to Cloudinary — survives server restarts.</p>
+    </div>
+  </div>
+</div>
+{% endif %}
+
+<script>
+let metaRowCount = {{ meta | length }};
+
+function addMetaRow() {
+  metaRowCount++;
+  const empty = document.getElementById('meta-empty');
+  if (empty) empty.remove();
+  const container = document.getElementById('meta-rows-container');
+  const row = document.createElement('div');
+  row.className = 'meta-row';
+  row.id = 'meta-row-' + metaRowCount;
+  row.innerHTML = `
+    <div class="form-group">
+      <label>Key</label>
+      <input type="text" name="meta_keys" placeholder="Type" />
+    </div>
+    <div class="form-group">
+      <label>Value</label>
+      <input type="text" name="meta_values" placeholder="RAG pipeline" />
+    </div>
+    <button type="button" class="btn btn-danger btn-xs" onclick="this.closest('.meta-row').remove()" title="Remove">✕</button>
+  `;
+  container.appendChild(row);
+  row.querySelector('input').focus();
+}
+</script>
+{% endblock %}

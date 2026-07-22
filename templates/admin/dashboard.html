@@ -1,0 +1,40 @@
+{% extends "admin/base.html" %}
+{% set active = 'dashboard' %}
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<h1 class="page-title">Dashboard</h1>
+<p class="page-sub">Welcome back. Here's an overview of your portfolio content.</p>
+
+<div class="dash-stats">
+  <div class="dash-stat">
+    <div class="dash-stat-val">{{ project_count }}</div>
+    <div class="dash-stat-label">Projects</div>
+  </div>
+  <div class="dash-stat">
+    <div class="dash-stat-val">{{ skill_count }}</div>
+    <div class="dash-stat-label">Skills</div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header">
+    <span class="card-title">Quick actions</span>
+  </div>
+  <div class="card-body" style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+    <a href="/admin/profile" class="btn btn-outline" id="dash-goto-profile">✏️ Edit profile &amp; bio</a>
+    <a href="/admin/skills" class="btn btn-outline" id="dash-goto-skills">⚡ Manage skills</a>
+    <a href="/admin/projects" class="btn btn-outline" id="dash-goto-projects">🗂 Manage projects</a>
+    <a href="/" target="_blank" rel="noopener" class="btn btn-outline" id="dash-view-site">🌐 View public site</a>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header">
+    <span class="card-title">About this CMS</span>
+  </div>
+  <div class="card-body" style="color: var(--ink-soft); font-size: 0.88rem; line-height: 1.75;">
+    <p>All content you save here is stored in <strong>Turso</strong> (hosted libSQL database). Images and your resume PDF are uploaded to <strong>Cloudinary</strong>. Nothing is saved to the local server disk — your edits survive restarts and redeploys automatically.</p>
+  </div>
+</div>
+{% endblock %}

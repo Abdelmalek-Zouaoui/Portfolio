@@ -174,6 +174,19 @@ async def update_image_alt(image_id: int, alt_text: str) -> None:
     await run("UPDATE project_images SET alt_text = ? WHERE id = ?", [alt_text, image_id])
 
 
+# ─── Single project (detail page) ───────────────────────────────────────────
+
+async def get_project_full(project_id: int) -> dict | None:
+    """Return a single enriched project dict with images, meta, and tags_list."""
+    project = await get_project(project_id)
+    if not project:
+        return None
+    images = await get_project_images(project_id)
+    meta = await get_project_meta(project_id)
+    tags = [t.strip() for t in (project.get("tags") or "").split(",") if t.strip()]
+    return {**project, "images": images, "meta": meta, "tags_list": tags}
+
+
 # ─── Public page assembly ────────────────────────────────────────────────────
 
 async def get_public_data() -> dict:

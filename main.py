@@ -14,6 +14,8 @@ from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from starlette.middleware.sessions import SessionMiddleware
+from fastapi.responses import HTMLResponse
+from fastapi import HTTPException
 
 import database
 import models
@@ -50,3 +52,15 @@ async def startup():
 async def index(request: Request):
     data = await models.get_public_data()
     return templates.TemplateResponse("index.html", {"request": request, **data})
+
+
+@app.get("/projects/{project_id}", response_class=HTMLResponse)
+async def project_detail(request: Request, project_id: int):
+    project = await models.get_project_full(project_id)
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+    profile = await models.get_profile()
+    return templates.TemplateResponse(
+        "project_detail.html",
+        {"request": request, "project": project, "profile": profile},
+    )

@@ -160,12 +160,13 @@
       {% for project in projects %}
       <article class="project-card" id="project-{{ project.id }}">
 
-        <!-- Image gallery -->
+        <!-- Image gallery — click to go to detail page -->
         {% set images = project.images %}
         {% set main_img = images | selectattr('is_main', 'equalto', 1) | list | first %}
         {% set other_imgs = images | rejectattr('is_main', 'equalto', 1) | list %}
 
         {% if images %}
+        <a href="/projects/{{ project.id }}" class="project-gallery-link" id="project-gallery-{{ project.id }}">
         <div class="project-gallery">
           <div class="gallery-main">
             <img
@@ -184,9 +185,10 @@
           </div>
           {% endif %}
         </div>
+        </a>
         {% else %}
         <div class="gallery-placeholder">
-          <span>🖼</span>
+          <span>&#128444;</span>
           <p>No images yet — upload via admin panel</p>
         </div>
         {% endif %}
@@ -215,12 +217,18 @@
             </div>
             {% endif %}
 
-            {% if project.link_url %}
-            <a href="{{ project.link_url }}" target="_blank" rel="noopener" class="project-link">
-              {{ project.link_label or 'View project' }}
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-            </a>
-            {% endif %}
+            <div style="display:flex; gap:1rem; align-items:center; flex-wrap:wrap; margin-top:0.5rem;">
+              <a href="/projects/{{ project.id }}" class="project-link" id="project-detail-{{ project.id }}">
+                View details
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+              </a>
+              {% if project.link_url %}
+              <a href="{{ project.link_url }}" target="_blank" rel="noopener" class="project-link" style="color:var(--ink-soft);" id="project-external-{{ project.id }}">
+                {{ project.link_label or 'Live site' }}
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+              </a>
+              {% endif %}
+            </div>
           </div>
 
           {% if project.meta %}

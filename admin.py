@@ -319,31 +319,49 @@ async def project_delete(request: Request, project_id: int):
 async def image_upload(
     request: Request,
     project_id: int,
-    image: Annotated[UploadFile, File()],
+    images: list[UploadFile] = File(...),
     alt_text: Annotated[str, Form()] = "",
     sort_order: Annotated[int, Form()] = 0,
 ):
     if (redir := _guard(request)):
         return redir
-    file_bytes = await image.read()
-    if not file_bytes:
+
+    existing = await models.get_project_images(project_id)
+    has_main = any(img.get("is_main") for img in existing)
+
+    uploaded_count = 0
+    for idx, img in enumerate(images):
+        if not img.filename:
+            continue
+        file_bytes = await img.read()
+        if not file_bytes:
+            continue
+
+        secure_url, public_id = await run_in_threadpool(storage.upload_image, file_bytes)
+
+        # Set main image if project currently has no main image
+        is_main = 1 if not has_main else 0
+        if is_main:
+            has_main = True
+
+        img_alt = alt_text.strip()
+        current_sort_order = sort_order + idx
+
+        await models.add_project_image(
+            project_id=project_id,
+            image_path=secure_url,
+            cloudinary_public_id=public_id,
+            alt_text=img_alt,
+            is_main=is_main,
+            sort_order=current_sort_order,
+        )
+        uploaded_count += 1
+
+    if uploaded_count == 0:
         return RedirectResponse(
             f"/admin/projects/{project_id}/edit?saved=error", status_code=302
         )
-    secure_url, public_id = await run_in_threadpool(storage.upload_image, file_bytes)
 
-    # First image for this project auto-set as main
-    existing = await models.get_project_images(project_id)
-    is_main = 1 if not existing else 0
-
-    await models.add_project_image(
-        project_id=project_id,
-        image_path=secure_url,
-        cloudinary_public_id=public_id,
-        alt_text=alt_text,
-        is_main=is_main,
-        sort_order=sort_order,
-    )
     return RedirectResponse(f"/admin/projects/{project_id}/edit?saved=1", status_code=302)
 
 

@@ -144,19 +144,19 @@
 
     <!-- Upload new image -->
     <div style="border-top: 1px solid var(--line); padding-top: 1.25rem;">
-      <p style="font-family: var(--font-mono); font-size: 0.68rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-soft); margin-bottom: 0.75rem;">Upload image</p>
+      <p style="font-family: var(--font-mono); font-size: 0.68rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-soft); margin-bottom: 0.75rem;">Upload images</p>
       <form method="POST" action="/admin/projects/{{ project.id }}/images/upload" enctype="multipart/form-data">
         <div class="form-grid">
           <div class="form-group span-2">
-            <label for="img-upload-{{ project.id }}">Image file (JPG, PNG, WebP, GIF)</label>
-            <input type="file" id="img-upload-{{ project.id }}" name="image" accept="image/*" required />
+            <label for="img-upload-{{ project.id }}">Image files (select one or more: JPG, PNG, WebP, GIF)</label>
+            <input type="file" id="img-upload-{{ project.id }}" name="images" accept="image/*" multiple required />
           </div>
           <div class="form-group">
-            <label for="img-alt-{{ project.id }}">Alt text</label>
+            <label for="img-alt-{{ project.id }}">Alt text (optional default)</label>
             <input type="text" id="img-alt-{{ project.id }}" name="alt_text" placeholder="Screenshot of the dashboard" />
           </div>
           <div class="form-group">
-            <label for="img-order-{{ project.id }}">Sort order</label>
+            <label for="img-order-{{ project.id }}">Starting sort order</label>
             <input type="number" id="img-order-{{ project.id }}" name="sort_order" value="{{ images | length }}" min="0" />
           </div>
         </div>
@@ -164,7 +164,7 @@
           Upload to Cloudinary
         </button>
       </form>
-      <p style="font-size: 0.75rem; color: var(--ink-soft); margin-top: 0.4rem;">Image is uploaded directly to Cloudinary — survives server restarts.</p>
+      <p style="font-size: 0.75rem; color: var(--ink-soft); margin-top: 0.4rem;">Select one or multiple images (hold Ctrl/Cmd or Shift). Images are uploaded directly to Cloudinary.</p>
     </div>
   </div>
 </div>

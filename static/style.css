@@ -358,7 +358,7 @@ a  { color: inherit; text-decoration: none; }
 /* ══════════════════════════════════════════════════════════════════════════
    EXPERIENCE
 ══════════════════════════════════════════════════════════════════════════ */
-#experience { padding: var(--section-gap) 0; }
+#experience, #education { padding: var(--section-gap) 0; }
 
 .experience-header { margin-bottom: 2.5rem; }
 .experience-heading {

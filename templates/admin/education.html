@@ -1,0 +1,145 @@
+{% extends "admin/base.html" %}
+{% set active = 'education' %}
+{% block title %}Education{% endblock %}
+
+{% block content %}
+<h1 class="page-title">Education</h1>
+<p class="page-sub">Add, edit, and delete degrees / coursework shown on the public page.</p>
+
+{% if saved == '1' %}
+<div class="flash flash-success">✔ Changes saved.</div>
+{% endif %}
+
+<!-- Add new education entry -->
+<div class="card" style="margin-bottom: 2rem;">
+  <div class="card-header"><span class="card-title">Add new education entry</span></div>
+  <div class="card-body">
+    <form method="POST" action="/admin/education/add">
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="edu-degree">Degree / program</label>
+          <input type="text" id="edu-degree" name="degree" placeholder="e.g. B.Sc. in AI Engineering" required />
+        </div>
+        <div class="form-group">
+          <label for="edu-institution">Institution</label>
+          <input type="text" id="edu-institution" name="institution" placeholder="e.g. USTHB" />
+        </div>
+        <div class="form-group">
+          <label for="edu-location">Location</label>
+          <input type="text" id="edu-location" name="location" placeholder="e.g. Algiers, Algeria" />
+        </div>
+        <div class="form-group">
+          <label for="edu-period">Period</label>
+          <input type="text" id="edu-period" name="period" placeholder="e.g. 2023 — Present" />
+        </div>
+        <div class="form-group span-2">
+          <label for="edu-description">Description</label>
+          <textarea id="edu-description" name="description" rows="4" placeholder="Relevant coursework, honors, activities…"></textarea>
+        </div>
+        <div class="form-group">
+          <label for="edu-order">Sort order</label>
+          <input type="number" id="edu-order" name="sort_order" value="0" min="0" />
+        </div>
+        <div class="form-group" style="align-self: flex-end;">
+          <button type="submit" class="btn btn-primary" id="edu-add-btn">Add education</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Existing education entries -->
+{% if education %}
+<div class="card">
+  <div class="card-header">
+    <span class="card-title">All education entries</span>
+    <span style="font-family: var(--font-mono); font-size: 0.7rem; color: var(--ink-soft);">{{ education | length }} entries</span>
+  </div>
+  <table class="admin-table">
+    <thead>
+      <tr>
+        <th>Degree</th>
+        <th>Institution</th>
+        <th>Period</th>
+        <th style="width: 90px;">Order</th>
+        <th style="width: 180px;">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for edu in education %}
+      <tr>
+        <td>{{ edu.degree }}</td>
+        <td>{{ edu.institution }}</td>
+        <td style="font-family: var(--font-mono); font-size: 0.78rem;">{{ edu.period }}</td>
+        <td style="font-family: var(--font-mono); font-size: 0.78rem;">{{ edu.sort_order }}</td>
+        <td>
+          <details style="display: inline;">
+            <summary class="btn btn-outline btn-sm" style="cursor: pointer; list-style: none; display: inline-flex;">Edit</summary>
+          </details>
+          &nbsp;
+          <form method="POST" action="/admin/education/{{ edu.id }}/delete" style="display: inline;"
+                onsubmit="return confirm('Delete this education entry?')">
+            <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+          </form>
+        </td>
+      </tr>
+      <!-- Edit row (shown via details) -->
+      <tr id="edu-edit-row-{{ edu.id }}" style="background: var(--accent-soft);">
+        <td colspan="5" style="padding: 0.75rem 1rem;">
+          <form method="POST" action="/admin/education/{{ edu.id }}/edit">
+            <div class="form-grid">
+              <div class="form-group">
+                <label>Degree / program</label>
+                <input type="text" name="degree" value="{{ edu.degree }}" required />
+              </div>
+              <div class="form-group">
+                <label>Institution</label>
+                <input type="text" name="institution" value="{{ edu.institution }}" />
+              </div>
+              <div class="form-group">
+                <label>Location</label>
+                <input type="text" name="location" value="{{ edu.location }}" />
+              </div>
+              <div class="form-group">
+                <label>Period</label>
+                <input type="text" name="period" value="{{ edu.period }}" />
+              </div>
+              <div class="form-group span-2">
+                <label>Description</label>
+                <textarea name="description" rows="4">{{ edu.description }}</textarea>
+              </div>
+              <div class="form-group">
+                <label>Sort order</label>
+                <input type="number" name="sort_order" value="{{ edu.sort_order }}" min="0" />
+              </div>
+              <div class="form-group" style="align-self: flex-end;">
+                <button type="submit" class="btn btn-primary btn-sm">Save</button>
+              </div>
+            </div>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+  <div style="text-align: center; padding: 3rem; border: 1px dashed var(--line); border-radius: 6px; color: var(--ink-soft);">
+    No education entries yet — add your first one above.
+  </div>
+{% endif %}
+
+<script>
+document.querySelectorAll('details summary').forEach(summary => {
+  summary.addEventListener('click', e => {
+    e.preventDefault();
+    const tr = summary.closest('tr');
+    const nextRow = tr.nextElementSibling;
+    if (nextRow) {
+      nextRow.style.display = nextRow.style.display === 'none' ? '' : 'none';
+    }
+  });
+});
+document.querySelectorAll('[id^="edu-edit-row-"]').forEach(r => r.style.display = 'none');
+</script>
+{% endblock %}

@@ -69,6 +69,7 @@ async def dashboard(request: Request):
     projects = await models.get_all_projects()
     skills = await models.get_all_skills()
     experiences = await models.get_all_experiences()
+    education = await models.get_all_education()
     return templates.TemplateResponse(
         "admin/dashboard.html",
         {
@@ -76,6 +77,7 @@ async def dashboard(request: Request):
             "project_count": len(projects),
             "skill_count": len(skills),
             "experience_count": len(experiences),
+            "education_count": len(education),
         },
     )
 
@@ -200,6 +202,66 @@ async def experience_delete(request: Request, experience_id: int):
         return redir
     await models.delete_experience(experience_id)
     return RedirectResponse("/admin/experiences?saved=1", status_code=302)
+
+
+# ── Education ─────────────────────────────────────────────────────────────────
+
+@router.get("/education")
+async def education_page(request: Request, saved: str = ""):
+    if (redir := _guard(request)):
+        return redir
+    education = await models.get_all_education()
+    return templates.TemplateResponse(
+        "admin/education.html",
+        {"request": request, "education": education, "saved": saved},
+    )
+
+
+@router.post("/education/add")
+async def education_add(
+    request: Request,
+    degree: Annotated[str, Form()],
+    institution: Annotated[str, Form()] = "",
+    location: Annotated[str, Form()] = "",
+    period: Annotated[str, Form()] = "",
+    description: Annotated[str, Form()] = "",
+    sort_order: Annotated[int, Form()] = 0,
+):
+    if (redir := _guard(request)):
+        return redir
+    await models.create_education(
+        degree.strip(), institution.strip(), location.strip(),
+        period.strip(), description.strip(), sort_order,
+    )
+    return RedirectResponse("/admin/education?saved=1", status_code=302)
+
+
+@router.post("/education/{education_id}/edit")
+async def education_edit(
+    request: Request,
+    education_id: int,
+    degree: Annotated[str, Form()],
+    institution: Annotated[str, Form()] = "",
+    location: Annotated[str, Form()] = "",
+    period: Annotated[str, Form()] = "",
+    description: Annotated[str, Form()] = "",
+    sort_order: Annotated[int, Form()] = 0,
+):
+    if (redir := _guard(request)):
+        return redir
+    await models.update_education(
+        education_id, degree.strip(), institution.strip(), location.strip(),
+        period.strip(), description.strip(), sort_order,
+    )
+    return RedirectResponse("/admin/education?saved=1", status_code=302)
+
+
+@router.post("/education/{education_id}/delete")
+async def education_delete(request: Request, education_id: int):
+    if (redir := _guard(request)):
+        return redir
+    await models.delete_education(education_id)
+    return RedirectResponse("/admin/education?saved=1", status_code=302)
 
 
 # ── Skills ────────────────────────────────────────────────────────────────────

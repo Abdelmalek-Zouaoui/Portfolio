@@ -71,6 +71,55 @@ async def delete_experience(experience_id: int) -> None:
     await run("DELETE FROM experiences WHERE id = ?", [experience_id])
 
 
+# ─── Education ──────────────────────────────────────────────────────────────
+
+async def get_all_education() -> list[dict]:
+    return await fetchall(
+        "SELECT * FROM education ORDER BY sort_order, id"
+    )
+
+
+async def get_education_entry(education_id: int) -> dict | None:
+    return await fetchone("SELECT * FROM education WHERE id = ?", [education_id])
+
+
+async def create_education(
+    degree: str,
+    institution: str = "",
+    location: str = "",
+    period: str = "",
+    description: str = "",
+    sort_order: int = 0,
+) -> int:
+    await run(
+        "INSERT INTO education (degree, institution, location, period, description, sort_order) "
+        "VALUES (?,?,?,?,?,?)",
+        [degree, institution, location, period, description, sort_order],
+    )
+    row = await fetchone("SELECT last_insert_rowid() AS id")
+    return int(row["id"]) if row else 0
+
+
+async def update_education(
+    education_id: int,
+    degree: str,
+    institution: str = "",
+    location: str = "",
+    period: str = "",
+    description: str = "",
+    sort_order: int = 0,
+) -> None:
+    await run(
+        "UPDATE education SET degree = ?, institution = ?, location = ?, "
+        "period = ?, description = ?, sort_order = ? WHERE id = ?",
+        [degree, institution, location, period, description, sort_order, education_id],
+    )
+
+
+async def delete_education(education_id: int) -> None:
+    await run("DELETE FROM education WHERE id = ?", [education_id])
+
+
 # ─── Skills ─────────────────────────────────────────────────────────────────
 
 async def get_all_skills() -> list[dict]:
@@ -242,6 +291,7 @@ async def get_public_data() -> dict:
     """Fetch everything needed for the public index page in one place."""
     profile = await get_profile()
     experiences = await get_all_experiences()
+    education = await get_all_education()
     skills_grouped = await get_skills_grouped()
     projects = await get_all_projects()
 
@@ -255,6 +305,7 @@ async def get_public_data() -> dict:
     return {
         "profile": profile,
         "experiences": experiences,
+        "education": education,
         "skills_grouped": skills_grouped,
         "projects": enriched,
     }

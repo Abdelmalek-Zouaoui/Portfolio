@@ -88,6 +88,18 @@ DDL = [
         sort_order   INTEGER DEFAULT 0
     )
     """,
+    # Education
+    """
+    CREATE TABLE IF NOT EXISTS education (
+        id          INTEGER PRIMARY KEY AUTOINCREMENT,
+        degree      TEXT    NOT NULL,
+        institution TEXT    DEFAULT '',
+        location    TEXT    DEFAULT '',
+        period      TEXT    DEFAULT '',
+        description TEXT    DEFAULT '',
+        sort_order  INTEGER DEFAULT 0
+    )
+    """,
     # Skills
     """
     CREATE TABLE IF NOT EXISTS skills (

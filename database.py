@@ -72,7 +72,8 @@ DDL = [
         email         TEXT    DEFAULT '',
         github_url    TEXT    DEFAULT '',
         linkedin_url  TEXT    DEFAULT '',
-        resume_file   TEXT    DEFAULT ''
+        resume_file   TEXT    DEFAULT '',
+        photo_url     TEXT    DEFAULT ''
     )
     """,
     # Skills
@@ -131,11 +132,18 @@ async def create_tables() -> None:
     stmts = [libsql_client.Statement(ddl.strip()) for ddl in DDL]
     await client.batch(stmts)
 
+    # Migrate columns added after initial release — CREATE TABLE IF NOT EXISTS
+    # above only helps on brand-new databases, not tables that already exist.
+    try:
+        await run("ALTER TABLE profile ADD COLUMN photo_url TEXT DEFAULT ''")
+    except Exception:
+        pass  # column already exists
+
     # Ensure profile row exists
     existing = await fetchone("SELECT id FROM profile WHERE id = 1")
     if not existing:
         await run(
             "INSERT INTO profile (id, name, eyebrow, hero_headline, hero_subtitle, "
-            "about_text, email, github_url, linkedin_url, resume_file) "
-            "VALUES (1, '', '', '', '', '', '', '', '', '')"
+            "about_text, email, github_url, linkedin_url, resume_file, photo_url) "
+            "VALUES (1, '', '', '', '', '', '', '', '', '', '')"
         )

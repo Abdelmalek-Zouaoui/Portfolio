@@ -69,6 +69,21 @@
     </div>
   </div>
 
+  <!-- Profile picture -->
+  <div class="card" style="margin-bottom: 1.5rem;">
+    <div class="card-header"><span class="card-title">Profile picture</span></div>
+    <div class="card-body">
+      {% if profile.photo_url %}
+      <img src="{{ profile.photo_url }}" alt="Current profile picture" style="width: 96px; height: 96px; object-fit: cover; border-radius: 50%; border: 1px solid var(--line); margin-bottom: 0.75rem; display: block;" />
+      {% endif %}
+      <div class="form-group">
+        <label for="profile-photo">Upload new photo (replaces existing)</label>
+        <input type="file" id="profile-photo" name="photo" accept="image/*" />
+      </div>
+      <p style="font-size: 0.78rem; color: var(--ink-soft); margin-top: 0.4rem;">Shown in the About section on the public page.</p>
+    </div>
+  </div>
+
   <!-- Resume -->
   <div class="card" style="margin-bottom: 1.5rem;">
     <div class="card-header"><span class="card-title">Resume / CV (PDF)</span></div>

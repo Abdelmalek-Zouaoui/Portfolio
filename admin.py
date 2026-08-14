@@ -100,12 +100,14 @@ async def profile_save(
     github_url: Annotated[str, Form()] = "",
     linkedin_url: Annotated[str, Form()] = "",
     resume_file: Annotated[Optional[UploadFile], File()] = None,
+    photo: Annotated[Optional[UploadFile], File()] = None,
 ):
     if (redir := _guard(request)):
         return redir
 
     profile = await models.get_profile()
     resume_url = profile.get("resume_file", "")
+    photo_url = profile.get("photo_url", "")
 
     # Upload new resume PDF to Cloudinary if provided
     if resume_file and resume_file.filename:
@@ -113,6 +115,13 @@ async def profile_save(
         if file_bytes:
             url, _pub_id = await run_in_threadpool(storage.upload_pdf, file_bytes)
             resume_url = url
+
+    # Upload new profile photo to Cloudinary if provided
+    if photo and photo.filename:
+        file_bytes = await photo.read()
+        if file_bytes:
+            url, _pub_id = await run_in_threadpool(storage.upload_image, file_bytes, "portfolio/profile")
+            photo_url = url
 
     await models.update_profile(
         name=name,
@@ -124,6 +133,7 @@ async def profile_save(
         github_url=github_url,
         linkedin_url=linkedin_url,
         resume_file=resume_url,
+        photo_url=photo_url,
     )
     return RedirectResponse("/admin/profile?saved=1", status_code=302)
 

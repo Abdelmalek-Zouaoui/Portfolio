@@ -86,6 +86,9 @@
     <div class="about-inner">
 
       <div class="about-body">
+        {% if profile.photo_url %}
+        <img src="{{ profile.photo_url }}" alt="{{ profile.name or 'Profile photo' }}" class="about-avatar" />
+        {% endif %}
         <h2 class="about-heading">Who I am &amp; what I build</h2>
         {% if profile.about_text %}
           {% for para in profile.about_text.split('\n\n') %}

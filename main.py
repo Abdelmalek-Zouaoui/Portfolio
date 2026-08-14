@@ -36,6 +36,7 @@ app.add_middleware(
 # ── Static files & templates ──────────────────────────────────────────────────
 app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
+templates.env.globals["asset_v"] = int(os.path.getmtime("static/style.css"))
 
 # ── Routers ───────────────────────────────────────────────────────────────────
 app.include_router(admin_router)

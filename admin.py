@@ -3,6 +3,7 @@ admin.py — All /admin/* routes.
 
 Protected by session cookie; any unauthenticated request redirects to /admin/login.
 """
+import os
 from fastapi import APIRouter, Request, Form, UploadFile, File
 from fastapi.responses import RedirectResponse
 from fastapi.templating import Jinja2Templates
@@ -15,6 +16,7 @@ from auth import is_authenticated, verify_password, login_session, logout_sessio
 
 router = APIRouter(prefix="/admin")
 templates = Jinja2Templates(directory="templates")
+templates.env.globals["asset_v"] = int(os.path.getmtime("static/admin.css"))
 
 
 # ── Auth guard helper ─────────────────────────────────────────────────────────

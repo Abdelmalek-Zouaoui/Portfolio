@@ -356,6 +356,78 @@ a  { color: inherit; text-decoration: none; }
 }
 
 /* ══════════════════════════════════════════════════════════════════════════
+   EXPERIENCE
+══════════════════════════════════════════════════════════════════════════ */
+#experience { padding: var(--section-gap) 0; }
+
+.experience-header { margin-bottom: 2.5rem; }
+.experience-heading {
+  font-family: var(--font-display);
+  font-size: 2.2rem;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+}
+
+.timeline {
+  position: relative;
+  max-width: 720px;
+  padding-left: 1.75rem;
+  border-left: 1px solid var(--line);
+}
+
+.timeline-item {
+  position: relative;
+  padding-bottom: 2.25rem;
+}
+.timeline-item:last-child { padding-bottom: 0; }
+
+.timeline-marker {
+  position: absolute;
+  top: 0.35rem;
+  left: -1.9rem;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+
+.timeline-top {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.2rem;
+}
+
+.timeline-role {
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.timeline-period {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--ink-soft);
+  white-space: nowrap;
+}
+
+.timeline-org {
+  font-size: 0.9rem;
+  color: var(--accent);
+  margin-bottom: 0.6rem;
+}
+
+.timeline-description {
+  color: var(--ink-soft);
+  font-size: 0.92rem;
+  line-height: 1.75;
+  white-space: pre-line;
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
    SKILLS
 ══════════════════════════════════════════════════════════════════════════ */
 #skills { padding: var(--section-gap) 0; }

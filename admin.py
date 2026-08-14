@@ -68,12 +68,14 @@ async def dashboard(request: Request):
         return redir
     projects = await models.get_all_projects()
     skills = await models.get_all_skills()
+    experiences = await models.get_all_experiences()
     return templates.TemplateResponse(
         "admin/dashboard.html",
         {
             "request": request,
             "project_count": len(projects),
             "skill_count": len(skills),
+            "experience_count": len(experiences),
         },
     )
 
@@ -138,6 +140,66 @@ async def profile_save(
         photo_url=photo_url,
     )
     return RedirectResponse("/admin/profile?saved=1", status_code=302)
+
+
+# ── Experience ────────────────────────────────────────────────────────────────
+
+@router.get("/experiences")
+async def experiences_page(request: Request, saved: str = ""):
+    if (redir := _guard(request)):
+        return redir
+    experiences = await models.get_all_experiences()
+    return templates.TemplateResponse(
+        "admin/experiences.html",
+        {"request": request, "experiences": experiences, "saved": saved},
+    )
+
+
+@router.post("/experiences/add")
+async def experience_add(
+    request: Request,
+    role: Annotated[str, Form()],
+    organization: Annotated[str, Form()] = "",
+    location: Annotated[str, Form()] = "",
+    period: Annotated[str, Form()] = "",
+    description: Annotated[str, Form()] = "",
+    sort_order: Annotated[int, Form()] = 0,
+):
+    if (redir := _guard(request)):
+        return redir
+    await models.create_experience(
+        role.strip(), organization.strip(), location.strip(),
+        period.strip(), description.strip(), sort_order,
+    )
+    return RedirectResponse("/admin/experiences?saved=1", status_code=302)
+
+
+@router.post("/experiences/{experience_id}/edit")
+async def experience_edit(
+    request: Request,
+    experience_id: int,
+    role: Annotated[str, Form()],
+    organization: Annotated[str, Form()] = "",
+    location: Annotated[str, Form()] = "",
+    period: Annotated[str, Form()] = "",
+    description: Annotated[str, Form()] = "",
+    sort_order: Annotated[int, Form()] = 0,
+):
+    if (redir := _guard(request)):
+        return redir
+    await models.update_experience(
+        experience_id, role.strip(), organization.strip(), location.strip(),
+        period.strip(), description.strip(), sort_order,
+    )
+    return RedirectResponse("/admin/experiences?saved=1", status_code=302)
+
+
+@router.post("/experiences/{experience_id}/delete")
+async def experience_delete(request: Request, experience_id: int):
+    if (redir := _guard(request)):
+        return redir
+    await models.delete_experience(experience_id)
+    return RedirectResponse("/admin/experiences?saved=1", status_code=302)
 
 
 # ── Skills ────────────────────────────────────────────────────────────────────

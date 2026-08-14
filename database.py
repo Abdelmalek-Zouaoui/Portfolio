@@ -76,6 +76,18 @@ DDL = [
         photo_url     TEXT    DEFAULT ''
     )
     """,
+    # Experience
+    """
+    CREATE TABLE IF NOT EXISTS experiences (
+        id           INTEGER PRIMARY KEY AUTOINCREMENT,
+        role         TEXT    NOT NULL,
+        organization TEXT    DEFAULT '',
+        location     TEXT    DEFAULT '',
+        period       TEXT    DEFAULT '',
+        description  TEXT    DEFAULT '',
+        sort_order   INTEGER DEFAULT 0
+    )
+    """,
     # Skills
     """
     CREATE TABLE IF NOT EXISTS skills (

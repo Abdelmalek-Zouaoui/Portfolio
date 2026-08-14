@@ -14,6 +14,7 @@
     <nav>
       <ul class="nav-links">
         <li><a href="#about">About</a></li>
+        {% if experiences %}<li><a href="#experience">Experience</a></li>{% endif %}
         <li><a href="#skills">Skills</a></li>
         <li><a href="#projects">Projects</a></li>
         <li><a href="#contact" class="nav-cta">Get in touch</a></li>
@@ -119,6 +120,40 @@
 </section>
 
 <hr class="divider container" />
+
+<!-- ═══════════════════════════════════════════ EXPERIENCE ════════════════ -->
+{% if experiences %}
+<section id="experience">
+  <div class="container">
+    <p class="section-label">Where I've worked</p>
+    <div class="experience-header">
+      <h2 class="experience-heading">Experience</h2>
+    </div>
+
+    <div class="timeline">
+      {% for exp in experiences %}
+      <div class="timeline-item">
+        <div class="timeline-marker"></div>
+        <div class="timeline-content">
+          <div class="timeline-top">
+            <h3 class="timeline-role">{{ exp.role }}</h3>
+            {% if exp.period %}<span class="timeline-period">{{ exp.period }}</span>{% endif %}
+          </div>
+          <p class="timeline-org">
+            {{ exp.organization }}{% if exp.location %} · {{ exp.location }}{% endif %}
+          </p>
+          {% if exp.description %}
+          <p class="timeline-description">{{ exp.description }}</p>
+          {% endif %}
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<hr class="divider container" />
+{% endif %}
 
 <!-- ═══════════════════════════════════════════ SKILLS ═══════════════════ -->
 <section id="skills">

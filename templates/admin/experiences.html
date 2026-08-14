@@ -1,0 +1,145 @@
+{% extends "admin/base.html" %}
+{% set active = 'experiences' %}
+{% block title %}Experience{% endblock %}
+
+{% block content %}
+<h1 class="page-title">Experience</h1>
+<p class="page-sub">Add, edit, and delete work / internship entries shown on the public page.</p>
+
+{% if saved == '1' %}
+<div class="flash flash-success">✔ Changes saved.</div>
+{% endif %}
+
+<!-- Add new experience -->
+<div class="card" style="margin-bottom: 2rem;">
+  <div class="card-header"><span class="card-title">Add new experience</span></div>
+  <div class="card-body">
+    <form method="POST" action="/admin/experiences/add">
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="exp-role">Role / title</label>
+          <input type="text" id="exp-role" name="role" placeholder="e.g. AI Engineering Intern" required />
+        </div>
+        <div class="form-group">
+          <label for="exp-org">Organization</label>
+          <input type="text" id="exp-org" name="organization" placeholder="e.g. Acme Corp" />
+        </div>
+        <div class="form-group">
+          <label for="exp-location">Location</label>
+          <input type="text" id="exp-location" name="location" placeholder="e.g. Algiers, Algeria" />
+        </div>
+        <div class="form-group">
+          <label for="exp-period">Period</label>
+          <input type="text" id="exp-period" name="period" placeholder="e.g. Jun 2025 — Present" />
+        </div>
+        <div class="form-group span-2">
+          <label for="exp-description">Description</label>
+          <textarea id="exp-description" name="description" rows="4" placeholder="What you did, separated into lines/paragraphs as needed."></textarea>
+        </div>
+        <div class="form-group">
+          <label for="exp-order">Sort order</label>
+          <input type="number" id="exp-order" name="sort_order" value="0" min="0" />
+        </div>
+        <div class="form-group" style="align-self: flex-end;">
+          <button type="submit" class="btn btn-primary" id="exp-add-btn">Add experience</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Existing experiences -->
+{% if experiences %}
+<div class="card">
+  <div class="card-header">
+    <span class="card-title">All experience entries</span>
+    <span style="font-family: var(--font-mono); font-size: 0.7rem; color: var(--ink-soft);">{{ experiences | length }} entries</span>
+  </div>
+  <table class="admin-table">
+    <thead>
+      <tr>
+        <th>Role</th>
+        <th>Organization</th>
+        <th>Period</th>
+        <th style="width: 90px;">Order</th>
+        <th style="width: 180px;">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for exp in experiences %}
+      <tr>
+        <td>{{ exp.role }}</td>
+        <td>{{ exp.organization }}</td>
+        <td style="font-family: var(--font-mono); font-size: 0.78rem;">{{ exp.period }}</td>
+        <td style="font-family: var(--font-mono); font-size: 0.78rem;">{{ exp.sort_order }}</td>
+        <td>
+          <details style="display: inline;">
+            <summary class="btn btn-outline btn-sm" style="cursor: pointer; list-style: none; display: inline-flex;">Edit</summary>
+          </details>
+          &nbsp;
+          <form method="POST" action="/admin/experiences/{{ exp.id }}/delete" style="display: inline;"
+                onsubmit="return confirm('Delete this experience entry?')">
+            <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+          </form>
+        </td>
+      </tr>
+      <!-- Edit row (shown via details) -->
+      <tr id="exp-edit-row-{{ exp.id }}" style="background: var(--accent-soft);">
+        <td colspan="5" style="padding: 0.75rem 1rem;">
+          <form method="POST" action="/admin/experiences/{{ exp.id }}/edit">
+            <div class="form-grid">
+              <div class="form-group">
+                <label>Role / title</label>
+                <input type="text" name="role" value="{{ exp.role }}" required />
+              </div>
+              <div class="form-group">
+                <label>Organization</label>
+                <input type="text" name="organization" value="{{ exp.organization }}" />
+              </div>
+              <div class="form-group">
+                <label>Location</label>
+                <input type="text" name="location" value="{{ exp.location }}" />
+              </div>
+              <div class="form-group">
+                <label>Period</label>
+                <input type="text" name="period" value="{{ exp.period }}" />
+              </div>
+              <div class="form-group span-2">
+                <label>Description</label>
+                <textarea name="description" rows="4">{{ exp.description }}</textarea>
+              </div>
+              <div class="form-group">
+                <label>Sort order</label>
+                <input type="number" name="sort_order" value="{{ exp.sort_order }}" min="0" />
+              </div>
+              <div class="form-group" style="align-self: flex-end;">
+                <button type="submit" class="btn btn-primary btn-sm">Save</button>
+              </div>
+            </div>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+  <div style="text-align: center; padding: 3rem; border: 1px dashed var(--line); border-radius: 6px; color: var(--ink-soft);">
+    No experience entries yet — add your first one above.
+  </div>
+{% endif %}
+
+<script>
+document.querySelectorAll('details summary').forEach(summary => {
+  summary.addEventListener('click', e => {
+    e.preventDefault();
+    const tr = summary.closest('tr');
+    const nextRow = tr.nextElementSibling;
+    if (nextRow) {
+      nextRow.style.display = nextRow.style.display === 'none' ? '' : 'none';
+    }
+  });
+});
+document.querySelectorAll('[id^="exp-edit-row-"]').forEach(r => r.style.display = 'none');
+</script>
+{% endblock %}

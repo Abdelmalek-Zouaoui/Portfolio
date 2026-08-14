@@ -33,9 +33,12 @@ def upload_image(file_bytes: bytes, folder: str = "portfolio") -> tuple[str, str
     return result["secure_url"], result["public_id"]
 
 
-def upload_pdf(file_bytes: bytes, folder: str = "portfolio/resumes") -> tuple[str, str]:
+def upload_pdf(file_bytes: bytes, folder: str = "portfolio/resumes", public_id: str = "resume.pdf") -> tuple[str, str]:
     """
     Upload a PDF (or any raw file) to Cloudinary.
+    Raw resources don't get an automatic file extension, so public_id carries
+    ".pdf" explicitly — otherwise the served URL has no extension and some
+    downloaders / ATS upload widgets refuse or mis-save the file.
     Returns (secure_url, public_id).
     """
     _configure()
@@ -43,6 +46,8 @@ def upload_pdf(file_bytes: bytes, folder: str = "portfolio/resumes") -> tuple[st
         file_bytes,
         folder=folder,
         resource_type="raw",
+        public_id=public_id,
+        overwrite=True,
     )
     return result["secure_url"], result["public_id"]
 

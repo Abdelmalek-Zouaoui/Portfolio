@@ -52,8 +52,8 @@
         </div>
       </div>
 
-      <!-- Right: animated terminal trace -->
-      <div class="hero-terminal" role="img" aria-label="AI agent trace animation">
+      <!-- Right: animated terminal trace, then a real interactive shell -->
+      <div class="hero-terminal" id="hero-terminal">
         <div class="term-header">
           <span class="term-dot red"></span>
           <span class="term-dot amber"></span>
@@ -61,23 +61,44 @@
           <span class="term-title">agent_trace.py — run #42</span>
         </div>
 
-        <div class="term-line"><span class="term-prompt">❯ </span><span class="term-action">python agent.py --task "summarise research papers"</span></div>
-        <div class="term-line"><span class="term-dim">─────────────────────────────────────</span></div>
-        <div class="term-line"><span class="term-thought">🧠 Thought: </span><span class="term-dim">I need to fetch and parse the PDFs first.</span></div>
-        <div class="term-line"><span class="term-action">⚙  Action:  </span><span class="term-dim">tool.fetch_papers(query="RAG survey", n=5)</span></div>
-        <div class="term-line"><span class="term-observe">👁  Observe: </span><span class="term-dim">5 documents retrieved. Total 94 pages.</span></div>
-        <div class="term-line"><span class="term-thought">🧠 Thought: </span><span class="term-dim">Extract key contributions per paper.</span></div>
-        <div class="term-line"><span class="term-action">⚙  Action:  </span><span class="term-dim">tool.chunk_and_embed(docs, chunk_size=512)</span></div>
-        <div class="term-line"><span class="term-observe">👁  Observe: </span><span class="term-dim">247 chunks indexed into vector store.</span></div>
-        <div class="term-line"><span class="term-thought">🧠 Thought: </span><span class="term-dim">Generate structured summary with citations.</span></div>
-        <div class="term-line"><span class="term-action">⚙  Action:  </span><span class="term-dim">llm.complete(prompt, temperature=0.2)</span></div>
-        <div class="term-line"><span class="term-result">✅ Result:  </span><span class="term-dim">Summary with 12 citations — 98% faithfulness</span></div>
-        <div class="term-line"><span class="term-prompt">❯ </span><span class="term-cursor"></span></div>
+        <div id="term-scripted" aria-hidden="true">
+          <div class="term-line"><span class="term-prompt">❯ </span><span class="term-action">python agent.py --task "summarise research papers"</span></div>
+          <div class="term-line"><span class="term-dim">─────────────────────────────────────</span></div>
+          <div class="term-line"><span class="term-thought">🧠 Thought: </span><span class="term-dim">I need to fetch and parse the PDFs first.</span></div>
+          <div class="term-line"><span class="term-action">⚙  Action:  </span><span class="term-dim">tool.fetch_papers(query="RAG survey", n=5)</span></div>
+          <div class="term-line"><span class="term-observe">👁  Observe: </span><span class="term-dim">5 documents retrieved. Total 94 pages.</span></div>
+          <div class="term-line"><span class="term-thought">🧠 Thought: </span><span class="term-dim">Extract key contributions per paper.</span></div>
+          <div class="term-line"><span class="term-action">⚙  Action:  </span><span class="term-dim">tool.chunk_and_embed(docs, chunk_size=512)</span></div>
+          <div class="term-line"><span class="term-observe">👁  Observe: </span><span class="term-dim">247 chunks indexed into vector store.</span></div>
+          <div class="term-line"><span class="term-thought">🧠 Thought: </span><span class="term-dim">Generate structured summary with citations.</span></div>
+          <div class="term-line"><span class="term-action">⚙  Action:  </span><span class="term-dim">llm.complete(prompt, temperature=0.2)</span></div>
+          <div class="term-line"><span class="term-result">✅ Result:  </span><span class="term-dim">Summary with 12 citations — 98% faithfulness</span></div>
+        </div>
+
+        <div id="term-output" aria-live="polite"></div>
+
+        <div class="term-line term-input-line" id="term-input-line">
+          <span class="term-prompt">❯ </span>
+          <input
+            type="text"
+            id="term-input"
+            class="term-input"
+            autocomplete="off"
+            autocapitalize="off"
+            spellcheck="false"
+            disabled
+            placeholder="type 'help' to begin…"
+            aria-label="Interactive terminal — type help for a list of commands"
+          />
+        </div>
       </div>
 
     </div>
   </div>
 </section>
+
+<script id="portfolio-data" type="application/json">{{ terminal_json | safe }}</script>
+<script src="/static/terminal.js?v={{ asset_v }}" defer></script>
 
 <hr class="divider container" />
 

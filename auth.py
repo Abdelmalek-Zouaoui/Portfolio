@@ -27,11 +27,8 @@ def _get_password_hash() -> str:
 def verify_password(plain: str) -> bool:
     try:
         h = _get_password_hash()
-        v = pwd_context.verify(plain, h)
-        print(f"DEBUG AUTH: plain={plain!r}, env_pass={os.environ.get('ADMIN_PASSWORD')!r}, hash={h!r}, result={v}")
-        return v
-    except Exception as e:
-        print(f"DEBUG AUTH ERROR: {e}")
+        return pwd_context.verify(plain, h)
+    except Exception:
         return False
 
 

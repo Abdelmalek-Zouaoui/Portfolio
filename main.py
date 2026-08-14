@@ -29,7 +29,7 @@ app.add_middleware(
     secret_key=os.environ.get("SESSION_SECRET", "dev-secret-change-me"),
     session_cookie="portfolio_session",
     same_site="lax",
-    https_only=False,  # Set True if behind HTTPS proxy on Render
+    https_only=os.environ.get("RENDER") is not None,  # HTTPS only on Render; plain HTTP works for local dev
     max_age=60 * 60 * 24 * 7,  # 7 days
 )
 

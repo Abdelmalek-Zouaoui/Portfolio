@@ -30,7 +30,7 @@ app.add_middleware(
     secret_key=os.environ.get("SESSION_SECRET", "dev-secret-change-me"),
     session_cookie="portfolio_session",
     same_site="lax",
-    https_only=os.environ.get("RENDER") is not None,  # HTTPS only on Render; plain HTTP works for local dev
+    https_only=os.environ.get("VERCEL") is not None or os.environ.get("RENDER") is not None,  # HTTPS only on Vercel/Render; plain HTTP works for local dev
     max_age=60 * 60 * 24 * 7,  # 7 days
 )
 
